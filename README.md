@@ -1,4 +1,4 @@
-# node-aem-api (for Node v4.3.2 - intended to run inside Amazon AWS)
+# node-aem-api (for Node v4.3.2 - intended to run inside AWS Lambda)
 
 > Warning this is under development. Tests are sparse or incomplete. Use at your own peril.
 
