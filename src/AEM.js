@@ -205,68 +205,66 @@ function AEM(host, port, username, password, config) {
         })
     };
 
-    // /**
-    //  * Sets properties on a node
-    //  * @param path
-    //  * @param props
-    //  * @returns {Promise.<Node,Error>}
-    //  */
-    // setProperties(path, props)
-    // {
-    //     if (!path) {
-    //         throw new TypeError('path required as first argument');
-    //     }
-    //
-    //     if (!props) {
-    //         throw new TypeError('object of properties is required as second argument');
-    //     }
-    //
-    //     const payload = new CRXPayload();
-    //
-    //     Object.keys(props).forEach(prop = > {
-    //         payload.setProperty(path, prop, props[prop])
-    // })
-    //     ;
-    //
-    //     // console.log(payload.toString())
-    //     return new Promise((res, rej) = > {
-    //             this.postRequest(payload.getFormData())
-    //             .then(_ = > this.getNode(path)
-    // )
-    // .
-    //     then(res)
-    //         .catch(rej);
-    // })
-    //     ;
-    // }
-    //
-    // /**
-    //  * Sets a property on a given node
-    //  * @param path
-    //  * @param prop
-    //  * @param val
-    //  * @returns {Promise.<Node,Error>}
-    //  */
-    // setProperty(path, prop, val)
-    // {
-    //     if (!path) {
-    //         throw new TypeError('path required as first argument');
-    //     }
-    //
-    //     if (!prop) {
-    //         throw new TypeError('property name is required as second argument');
-    //     }
-    //
-    //     if (val === undefined) {
-    //         throw new TypeError('property value cannot be undefined');
-    //     }
-    //
-    //     const props = {};
-    //     props[prop] = val;
-    //
-    //     return this.setProperties(path, props);
-    // }
-    //
+    /**
+     * Sets properties on a node
+     * @param path
+     * @param props
+     * @returns {Promise.<Node,Error>}
+     */
+    this.setProperties = function (path, props) {
+        if (!path) {
+            throw new TypeError('path required as first argument');
+        }
+
+        if (!props) {
+            throw new TypeError('object of properties is required as second argument');
+        }
+
+        const that = this;
+        const payload = new CRXPayload();
+
+        Object.keys(props).forEach(function (prop) {
+            return payload.setProperty(path, prop, props[prop])
+        });
+
+        // console.log(payload.toString())
+        return new Promise(function (res, rej) {
+            return that.postRequest(payload.getFormData())
+                .then(function (_) {
+                    return that.getNode(path);
+                })
+                .then(res)
+                .catch(rej);
+        });
+    }
+
+    /**
+     * Sets a property on a given node
+     * @param path
+     * @param prop
+     * @param val
+     * @returns {Promise.<Node,Error>}
+     */
+    this.setProperty = function (path, prop, val) {
+
+        if (!path) {
+            throw new TypeError('path required as first argument');
+        }
+
+        if (!prop) {
+            throw new TypeError('property name is required as second argument');
+        }
+
+        if (val === undefined) {
+            throw new TypeError('property value cannot be undefined');
+        }
+
+        const props = {};
+        props[prop] = val;
+
+        return this.setProperties(path, props);
+    }
+
     // /**
     //  * Removes properties from a node
     //  * @param path
@@ -363,73 +361,72 @@ function AEM(host, port, username, password, config) {
     // })
     //     ;
     // }
-    //
-    // /**
-    //  * Creates a new dam asset
-    //  * @param path
-    //  * @param file
-    //  * @param mimeType
-    //  * @returns {Promise.<Node,Error>}
-    //  */
-    // createAsset(path, file, mimeType)
-    // {
-    //     if (!path) {
-    //         throw new TypeError('path required as first argument');
-    //     }
-    //
-    //     if (!file) {
-    //         throw new TypeError('file is required as second argument');
-    //     }
-    //
-    //     if (!(typeof file === 'string')) {
-    //         if (!mimeType) {
-    //             throw new TypeError('mimeType is required as the third argument when a stream or buffer is used');
-    //         }
-    //     }
-    //
-    //     const pathMatches = path.match(/^(.+)\/([^\/]+)$/);
-    //     if (!pathMatches) {
-    //         throw new Error('Error parsing path');
-    //     }
-    //     /*
-    //      Treat strings as a path
-    //      */
-    //     if (typeof file === 'string') {
-    //         return new Promise((res, rej) = > {
-    //                 /*
-    //                  ReadStream is prefered, as Buffers can mess up images
-    //                  */
-    //                 const stream = fs.createReadStream(file, {encoding: null});
-    //         /*
-    //          Try and guess the mimetype
-    //          */
-    //         mimeType = mime.lookup(file) || mimeType;
-    //
-    //         res(this.createAsset(path, stream, mimeType));
-    //     })
-    //     } else if (file instanceof Buffer || file instanceof fs.ReadStream) {
-    //
-    //         const parentPath = pathMatches[1];
-    //         const filename = pathMatches[2];
-    //
-    //         const formData = new FormData();
-    //         formData.append('file', file, {contentType: mimeType, filename});
-    //         formData.append('_charset_', 'utf-8');
-    //
-    //         return new Promise((res, rej) = > {
-    //                 this.postRequest(formData, `${this.api.instance}${parentPath}.createasset.html`)
-    //                 .then(_ = > this.getNode(path)
-    //     )
-    //     .
-    //         then(res)
-    //             .catch(rej);
-    //     })
-    //         ;
-    //     } else {
-    //         throw new TypeError('second argument must be either a path or a Buffer');
-    //     }
-    // }
-    //
+
+    /**
+     * Creates a new dam asset
+     * @param path
+     * @param file
+     * @param mimeType
+     * @returns {Promise.<Node,Error>}
+     */
+    this.createAsset = function (path, file, mimeType) {
+        if (!path) {
+            throw new TypeError('path required as first argument');
+        }
+
+        if (!file) {
+            throw new TypeError('file is required as second argument');
+        }
+
+        if (!(typeof file === 'string')) {
+            if (!mimeType) {
+                throw new TypeError('mimeType is required as the third argument when a stream or buffer is used');
+            }
+        }
+
+        const that = this;
+        const pathMatches = path.match(/^(.+)\/([^\/]+)$/);
+        if (!pathMatches) {
+            throw new Error('Error parsing path');
+        }
+        /*
+         Treat strings as a path
+         */
+        if (typeof file === 'string') {
+            return new Promise(function (res, rej) {
+                /*
+                 ReadStream is prefered, as Buffers can mess up images
+                 */
+                const stream = fs.createReadStream(file, {encoding: null});
+                /*
+                 Try and guess the mimetype
+                 */
+                mimeType = mime.lookup(file) || mimeType;
+
+                res(that.createAsset(path, stream, mimeType));
+            });
+        } else if (file instanceof Buffer || file instanceof fs.ReadStream) {
+
+            const parentPath = pathMatches[1];
+            const filename = pathMatches[2];
+
+            const formData = new FormData();
+            formData.append('file', file, {contentType: mimeType, filename: filename});
+            formData.append('_charset_', 'utf-8');
+
+            return new Promise(function (res, rej) {
+                return that.postRequest(formData, that.api.instance + parentPath + ".createasset.html")
+                    .then(function (_) {
+                        return that.getNode(path);
+                    })
+                    .then(res)
+                    .catch(rej);
+            });
+        } else {
+            throw new TypeError('second argument must be either a path or a Buffer');
+        }
+    }
+
     // /**
     //  * Updates a dam asset
     //  * @param path
